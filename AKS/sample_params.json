@@ -1,0 +1,63 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "value": "ResourceName"
+        },
+        "location": {
+            "value": "centralus"
+        },
+        "dnsPrefix": {
+            "value": "dns-prefix-name"
+        },
+        "agentCount": {
+            "value": 3
+        },
+        "agentVMSize": {
+            "value": "Standard_DS2_v2"
+        },
+        "servicePrincipalClientId": {
+            "value": null
+        },
+        "servicePrincipalClientSecret": {
+            "value": null
+        },
+        "kubernetesVersion": {
+            "value": "1.10.8"
+        },
+        "workspaceName": {
+            "value": "DefaultWorkspace-9XXXXX"
+        },
+        "omsWorkspaceId": {
+            "value": "/subscriptions/9XXXXXXX9/resourcegroups/defaultresourcegroup-eus/providers/microsoft.operationalinsights/workspaces/DefaultWorkspace-9XXXXX"
+        },
+        "workspaceRegion": {
+            "value": "eastus"
+        },
+        "enableHttpApplicationRouting": {
+            "value": true
+        },
+        "networkPlugin": {
+            "value": "azure"
+        },
+        "enableRBAC": {
+            "value": true
+        },
+        "vnetSubnetID": {
+            "value": "/subscriptions/9XXXXXXX9/resourceGroups/AKSCluster/providers/Microsoft.Network/virtualNetworks/AKSCluster-vnet/subnets/default"
+        },
+        "serviceCidr": {
+            "value": "10.0.0.0/16"
+        },
+        "dnsServiceIP": {
+            "value": "10.0.0.10"
+        },
+        "dockerBridgeCidr": {
+            "value": "172.17.0.1/16"
+        },
+        "principalId": {
+            "value": "fXXXXXXXXXXXXXXXXXXXXX2"
+        }
+    }
+}
