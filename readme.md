@@ -4,9 +4,9 @@ This is general tutorial with settings to configure Azure Kubernetes Service wit
 
 ## Steps ##
 
-1. Stand up AKS Service
-1. Setup Persistent Storage (Azure Storage)
-1. View Kubernetes Dashboard
-1. Setup Persistant Storage within Kubernetes
-1. Create Stateful set of Streamsets Data Collector
-1. Create Ingress Load Balancer
+1. [Stand up AKS Service](AKS/readme.md)
+1. [Setup Persistent Storage (Azure Storage)](Storage/readme.md)
+1. [View Kubernetes Dashboard](AKS/dashboard.md)
+1. [Setup Persistent Storage within Kubernetes](AKS/storage.md)
+1. [Create Stateful set of Streamsets Data Collector](SDC/readme.md)
+1. [Create Ingress Load Balancer](Ingress/readme.md)
