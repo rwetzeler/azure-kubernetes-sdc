@@ -48,21 +48,52 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+      "containerURI": {
+        "type": "string",
+        "defaultValue": "rwetzeler/streamsets-dc"
+      },
+    "numberCores": {
+      "type": "string"
+    },
+    "memory": {
+      "type": "string"
+    },
+    "ports": {
+      "defaultValue": "{\"port\":  80, \"protocol\": \"TCP\"}",
+      "type": "string"
+    },
+    "ports2": {
+      "defaultValue": "",
+      "type": "string"
+    },
+    "ports3": {
+      "defaultValue": "",
+      "type": "string"
+    },
+    "hasPort2": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "hasPort3": {
+      "type": "bool",
+      "defaultValue": false
     }
   },
   "variables": {
-    "jobName": "[parameters('storageAccountName')]",
-    "image": "microsoft/azure-cli",
-    "cpuCores": "0.1",
-    "memoryInGb": "0.1",
-    "containerGroupName": "[concat('containerstorage',variables('jobName'))]",
-    "containerName": "worker"
-    
+    "v_jobName": "[parameters('storageAccountName')]",
+    "v_image_azure-cli": "microsoft/azure-cli:latest",
+    "v_cli_cpuCores": "0.1",
+    "v_cli_memoryInGb": "0.1",    
+    "v_cli-shr-containerName": "cli-worker",    
+    "v_ports": "[if(and(parameters('hasPort2'), parameters('hasPort3')), createArray(json(parameters('ports')), json(parameters('ports2')), json(parameters('ports3'))), if(parameters('hasPort2'), createArray(json(parameters('ports')), json(parameters('ports2'))), if(parameters('hasPort3'), createArray(json(parameters('ports')), json(parameters('ports3'))), createArray(json(parameters('ports'))))))]",
+    "v_storageAccountName": "[concat('cs',variables('v_jobName'))]",
+    "v_storageShareJobName": "[concat('shr-', variables('v_jobName'))]"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('storageAccountName')]",
+      "name": "[variables('v_storageAccountName')]",
       "apiVersion": "2017-10-01",
       "location": "[parameters('location')]",
       "sku": {
@@ -70,9 +101,10 @@
       },
       "kind": "Storage",
       "properties": {}
-    },
+    }
+    ,
     {
-      "name": "[variables('containerGroupName')]",
+      "name": "[variables('v_storageShareJobName')]",
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2018-02-01-preview",
       "location": "[parameters('containerInstanceLocation')]",
@@ -82,97 +114,84 @@
       "properties": {
         "containers": [
           {
-            "name": "[concat(variables('containerName'),'-etc')]",
+            "name": "[variables('v_cli-shr-containerName')]",
             "properties": {
-              "image": "[variables('image')]",
+              "image": "[variables('v_image_azure-cli')]",
               "command": [
                 "az",
                 "storage",
                 "share",
                 "create",
                 "--name",
-                "etc"
+                "[parameters('fileShareName')]"
               ],
               "environmentVariables": [
                 {
                   "name": "AZURE_STORAGE_KEY",
-                  "value": "[listKeys(parameters('storageAccountName'),'2017-10-01').keys[0].value]"
+                  "value": "[listKeys(variables('v_storageAccountName'),'2017-10-01').keys[0].value]"
                 },
                 {
                   "name": "AZURE_STORAGE_ACCOUNT",
-                  "value": "[parameters('storageAccountName')]"
+                  "value": "[variables('v_storageAccountName')]"
                 }
               ],
               "resources": {
                 "requests": {
-                  "cpu": "[variables('cpuCores')]",
-                  "memoryInGb": "[variables('memoryInGb')]"
-                }
-              }
-            }
-          },
-          {
-            "name": "[concat(variables('containerName'),'-data')]",
-            "properties": {
-              "image": "[variables('image')]",
-              "command": [
-                "az",
-                "storage",
-                "share",
-                "create",
-                "--name",
-                "data"
-              ],
-              "environmentVariables": [
-                {
-                  "name": "AZURE_STORAGE_KEY",
-                  "value": "[listKeys(parameters('storageAccountName'),'2017-10-01').keys[0].value]"
-                },
-                {
-                  "name": "AZURE_STORAGE_ACCOUNT",
-                  "value": "[parameters('storageAccountName')]"
-                }
-              ],
-              "resources": {
-                "requests": {
-                  "cpu": "[variables('cpuCores')]",
-                  "memoryInGb": "[variables('memoryInGb')]"
-                }
-              }
-            }
-          },
-          {
-            "name": "[concat(variables('containerName'),'-mnt')]",
-            "properties": {
-              "image": "[variables('image')]",
-              "command": [
-                "az",
-                "storage",
-                "share",
-                "create",
-                "--name",
-                "mnt"
-              ],
-              "environmentVariables": [
-                {
-                  "name": "AZURE_STORAGE_KEY",
-                  "value": "[listKeys(parameters('storageAccountName'),'2017-10-01').keys[0].value]"
-                },
-                {
-                  "name": "AZURE_STORAGE_ACCOUNT",
-                  "value": "[parameters('storageAccountName')]"
-                }
-              ],
-              "resources": {
-                "requests": {
-                  "cpu": "[variables('cpuCores')]",
-                  "memoryInGb": "[variables('memoryInGb')]"
+                  "cpu": "[variables('v_cli_cpuCores')]",
+                  "memoryInGb": "[variables('v_cli_memoryInGb')]"
                 }
               }
             }
           }
         ],
         "restartPolicy": "OnFailure",
+        "osType": "Linux"
+      }
+    },
+    {
+      "name": "Streamsets-SDC",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2018-02-01-preview",
+      "location": "[parameters('containerInstanceLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/',variables('v_storageAccountName'))]"
+      ],
+      "properties": {
+        "containers": [
+          {
+            "name": "[concat('sdc-',variables('v_jobName'))]",
+            "properties": {
+              "image": "[parameters('containerURI')]",
+              "ports": "[variables('v_ports')]",
+              "resources": {
+                "requests": {
+                  "cpu": "[parameters('numberCores')]",
+                  "memoryInGb": "[parameters('memory')]"
+                }
+              },
+              "volumeMounts": [
+                {
+                  "name": "mnt",
+                  "mountPath": "/mnt"
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "AZURE_STORAGE_KEY",
+                  "value": "[listKeys(variables('v_storageAccountName'),'2017-10-01').keys[0].value]"
+                },
+                {
+                  "name": "AZURE_STORAGE_ACCOUNT",
+                  "value": "[variables('v_storageAccountName')]"
+                },
+                {
+                  "name": "SDC_DATA",
+                  "value": "/mnt"
+                }
+              ]
+          }                  
+        }],
+        "restartPolicy": "Never",
         "osType": "Linux"
       }
     }
