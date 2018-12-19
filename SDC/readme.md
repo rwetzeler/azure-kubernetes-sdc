@@ -9,9 +9,11 @@ My goal was to make it easy to run SDC from various platforms within the Azure C
 1. [Kubernetes Instance](#aks)
 1. [References](#references)
 
-## Steps to run in Azure Container Services<a name="aci"></a>
+<a name="aci"></a>
+## Steps to run in Azure Container Services
 
-### With One Azure Storage Volume Mount<a name="onevolume"></a>
+<a name="onevolume"></a>
+### With One Azure Storage Volume Mount
 *Note: You can eitehr A) Create the storage ahead of time and referend or B) run the script that will do it in one shot*
 
 1. Open the [Create_Container_Instance.sh](Create_Container_Instanace.sh) file and either modify or run it.  *Note you will need to login to Azure CLI via `az login`*
@@ -33,15 +35,16 @@ My goal was to make it easy to run SDC from various platforms within the Azure C
 
 **Result:** A running SDC Container with persisent storage mounted as a volume for SDC_Data and SDC_Logs
 
-### With Multiple Azure Storage Volume Mounts (WIP)<a name="multiplemounts"></a>
+<a name="multiplemounts"></a>
+### With Multiple Azure Storage Volume Mounts (*WIP*)
 This is slightly more tricky.  ACI via Azure CLI doesn't allow you to mount multiple volumes in one shot, and for that matter, there is no CLI API to add/modify a container setup to add more volumes later.
 1. Use the templates with template.json and parameters_example.json 
 (make it to your liking)
 
 **Result:** A running SDC Container with persisent storage mounted with multiple volumes - I use this to have a shared SDC_CONF that all my container instances and use.
 
-## Setup StreamSets Data Collector in Kubernetes (WIP)<a name="aks"></a>
-
+<a name="aks"></a>
+## Setup StreamSets Data Collector in Kubernetes (*WIP*)
 
 1. Create Docker Container yaml file or use your favorite version
 1. Apply the file to your Kubernetes Cluster
