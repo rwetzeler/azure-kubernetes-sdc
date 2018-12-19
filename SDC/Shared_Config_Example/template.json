@@ -1,0 +1,139 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccounts_sdccommon_name": {
+            "defaultValue": "sdccommon",
+            "type": "String",
+            "metadata": "The storage account name for the shared volume"
+        },
+        "shareMountPath" :{
+            "type": "String",
+            "metadata": "The mounting path for the shared volume"
+        },
+        "shareMountName" : {
+            "type": "String",
+            "metadata" : "The file share name within the storage account"
+        },
+        "storageAccounts_sdccommon_key": {            
+            "type": "String",
+            "metadata" : "The key for the shared storage account"
+        },
+        "containerGroups_sdc_name": {
+            "defaultValue": "sdc",
+            "type": "String"
+        },
+        "storageAccounts_containerstorage_name": {
+            "defaultValue": "containerstorage",
+            "type": "String"
+        },
+        "storageAccounts_containerstorage_key": {            
+            "type": "String"
+        },         
+        "sharedConfigPath" : {            
+            "type" : "String"
+        }
+
+    },
+    "variables": {
+            "v_containerGroups_sdc_name" : "[concat('grp',parameters('containerGroups_sdc_name'))]",
+            "v_conatiner_sdc_name" : "[concat('sdc',parameters('containerGroups_sdc_name'))]",
+            "v_Shared_Config_Path" : "[concat(parameters('sharedConfigPath'),'/std')]",
+            "v_Share_Mount_Path" : "[parameters('shareMountPath')]",
+            "v_storageAccounts_containerstorage_name" : "[parameters('storageAccounts_containerstorage_name')]"
+    },
+    "resources": [
+        {
+            "comments": "",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "name": "[variables('v_containerGroups_sdc_name')]",
+            "apiVersion": "2018-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[variables('v_conatiner_sdc_name')]",
+                        "properties": {
+                            "image": "rwetzeler/streamsets-dc",
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": 18630
+                                }
+                            ],
+                            "environmentVariables": [
+                                {
+                                    "name": "SDC_DATA",
+                                    "value": "/mnt/sdc/data"
+                                },
+                                {
+                                    "name": "SDC_LOG",
+                                    "value": "/mnt/sdc/logs"
+                                },
+                                {
+                                    "name": "SDC_CONF",
+                                    "value": "[variables('v_Shared_Config_Path')]"
+                                }                         
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1.5,
+                                    "cpu": 1
+                                }
+                            },
+                            "volumeMounts": [
+                                {
+                                    "name": "containerstorage",
+                                    "mountPath": "/mnt"
+                                },
+                                {
+                                    "name": "configstorage",
+                                    "mountPath": "[variables('v_Share_Mount_Path')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "restartPolicy": "Always",
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": 18630
+                        }
+                    ],                    
+                    "type": "Public",
+                    "dnsNameLabel": "[variables('v_conatiner_sdc_name')]"
+                },
+                "osType": "Linux",
+                "volumes": [
+                    {
+                        "name": "containerstorage",
+                        "azureFile": {
+                            "shareName": "mnt",
+                            "storageAccountName": "[variables('v_storageAccounts_containerstorage_name')]",
+                            "storageAccountKey": "[parameters('storageAccounts_containerstorage_key')]"
+                        }
+                    },
+                    {
+                        "name": "configstorage",
+                        "azureFile": {
+                            "shareName": "[parameters('shareMountName')]",
+                            "storageAccountName": "[parameters('storageAccounts_sdccommon_name')]",
+                            "storageAccountKey": "[parameters('storageAccounts_sdccommon_key')]"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "containerIPv4Address": {
+          "type": "string",
+          "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', variables('v_containerGroups_sdc_name'))).ipAddress.ip]"
+        }
+      }
+}

@@ -62,8 +62,8 @@ https://docs.microsoft.com/en-us/azure/container-instances/container-instances-v
 
 
 
-
-##References <a name="references"></a>
+<a name="references"></a>
+## References 
 [Based from this post](https://StreamSets.com/blog/scaling-StreamSets-kubernetes/)
 [StreamSets](https://streamsets.com/)
 [StreamSets Docker Container](https://hub.docker.com/r/streamsets/datacollector/)
