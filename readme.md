@@ -1,12 +1,6 @@
-# Setup for Azure Kubernetes Service with Streamsets Data Collector #
+# Project Goals #
 
-This is general tutorial with settings to configure Azure Kubernetes Service with a Streamsets Data Collector Docker Container running within
+This is general tutorial with settings to configure Azure and StreamSets Data Collector as a container. Within this project, you've find examples to run within Azure Container Instances, as well as Azure Kubernetes Services.  
 
-## Steps ##
-
-1. [Stand up AKS Service](AKS/readme.md)
-1. [Setup Persistent Storage (Azure Storage)](Storage/readme.md)
-1. [View Kubernetes Dashboard](AKS/dashboard.md)
-1. [Setup Persistent Storage within Kubernetes](AKS/storage.md)
-1. [Create Stateful set of Streamsets Data Collector](SDC/readme.md)
-1. [Create Ingress Load Balancer](Ingress/readme.md)
+## Examples ##
+* [SDC via Azure Container Instance](SDC/readme.sdc)
