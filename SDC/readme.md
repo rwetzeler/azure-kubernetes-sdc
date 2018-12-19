@@ -9,10 +9,6 @@ My goal was to make it easy to run SDC from various platforms within the Azure C
 1. [Kubernetes Instance](#aks)
 1. [References](#references)
 
-## Example
-## Example2
-## Third Example
-
 ## Steps to run in Azure Container Services<a name="aci"></a>
 
 ### With One Azure Storage Volume Mount<a name="onevolume"></a>
